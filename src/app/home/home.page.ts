@@ -10,7 +10,7 @@ export class HomePage {
 
   public listaPokemons: any = [];
   public pagina = 1;
-  public totalPaginas = 105;
+  public totalPaginas = 0;
   public url = "https://pokeapi.co/api/v2/pokemon/?limit=10&offset=0"
   public next: string;
   public previous: string;
@@ -29,12 +29,15 @@ export class HomePage {
 
     this.pokemonService.buscarPokemons(this.url).subscribe(dados => {
       this.listaPokemons = [];
+      this.totalPaginas = dados['count'] / 10;
       let listaApi = dados['results'];
       this.next = dados['next'];
       this.previous = dados['previous'];
       for (let item of listaApi) {
         this.pokemonService.buscaPokemonNumero(item.url).subscribe(dadosPokemon => {
           this.listaPokemons.push(dadosPokemon);
+
+          this.ordenarLista();
         });
       }
       console.log("Lista: ", this.listaPokemons);
@@ -49,5 +52,17 @@ export class HomePage {
   public previousPage() {
     this.url = this.previous;
     this.buscarPokemons(this.pagina - 1);
+  }
+
+  public ordenarLista(){
+    this.listaPokemons.sort((a, b) =>{
+      if(a.id > b.id){
+        return 1;
+      }
+      if(a.id < b.id) {
+        return -1;
+      }
+      return 0;
+    });
   }
 }
